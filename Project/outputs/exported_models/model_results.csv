@@ -1,0 +1,3 @@
+prefix,pipeline_file,score
+TPOT,smoke_tpot.py,0.9650
+FLAML,smoke_flaml.py,0.99

@@ -1,0 +1,7 @@
+prefix,pipeline_file,score
+TPOT,final_raw_tpot.py,0.0034
+FLAML,final_raw_flaml.py,0.06047342982021875
+TPOT,final_processed_unsupervised_tpot.py,0.0063
+FLAML,final_processed_unsupervised_flaml.py,0.027826039470462915
+TPOT,final_processed_supervised_tpot.py,0.0063
+FLAML,final_processed_supervised_flaml.py,0.02929193844222977

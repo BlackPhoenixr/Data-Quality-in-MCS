@@ -1,0 +1,119 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - kafka-net
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka-net
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    environment:
+      KAFKA_BROKER_CONNECT: kafka:29092
+    ports:
+      - "9000:9000"
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
+
+  dask:
+    build: .
+    ports:
+      - "8787:8787"
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+
+  data:
+    build: .
+    command: python data_generator/dataset_creation.py
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+
+  label:
+    build: .
+    command: python modules/ground_truth_labeling.py
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+
+  smoke:
+    build: .
+    command: python tests/smoke_test.py
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+
+  main:
+    build: .
+    command: python main.py
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+
+  full-pipeline:
+    build: .
+    command: python full_pipeline.py
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+
+networks:
+  kafka-net:
+    driver: bridge
