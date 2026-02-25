@@ -51,22 +51,14 @@ conda activate MATRIX
 pip install -r requirements.txt
 
 # 3. Run the pipeline
-python entrypoint.py
+python main.py
 ```
 
 **Outputs:**  
-All results are saved under `outputs/`:
-```
-outputs/
- ├─ exported_tpot_models/    # Saved pipelines (.py, .pkl)
- ├─ exported_reputations/    # Predictions as CSVs
- ├─ figures/                 # Interactive Plotly charts
- └─ logs/                    # Timestamped logs per run
-```
+All results are saved under `outputs/` (models, predictions, plots, and logs).
 
 **Visualization:**  
-Open `figures/model_comparison.html` for TPOT vs FLAML score comparison.  
-See `figures/reputation_comparison.html` for scatterplots of predicted vs actual reputations.
+Open `outputs/.../plots/` for TPOT vs FLAML comparisons and reputation scatterplots.
 
 ---
 
@@ -99,16 +91,16 @@ docker-compose run --rm main
 - `kafka`, `zookeeper` power the Kafka broker
 - `kafdrop` provides a Kafka web UI at [http://localhost:9000](http://localhost:9000)
 
-| Service   | Περιγραφή                                  | Web UI                    |
+| Service   | Description                                | Web UI                    |
 |-----------|--------------------------------------------|---------------------------|
-| main      | Εκτελεί το βασικό pipeline                 | -                         |
-| data      | Δημιουργία/synthetic επεξεργασία dataset   | -                         |
-| label     | Ground truth labeling                      | -                         |
-| smoke     | Smoke tests του pipeline                   | -                         |
-| dask      | Dask distributed cluster                   | [localhost:8787](http://localhost:8787) |
-| kafka     | Kafka broker για data streaming            | -                         |
-| zookeeper | Zookeeper για Kafka                        | -                         |
-| kafdrop   | Kafka web-based monitoring                 | [localhost:9000](http://localhost:9000) |
+| main      | Runs the main pipeline                      | -                         |
+| data      | Dataset creation / preprocessing            | -                         |
+| label     | Ground truth labeling                       | -                         |
+| smoke     | Pipeline smoke tests                        | -                         |
+| dask      | Dask distributed cluster                    | [localhost:8787](http://localhost:8787) |
+| kafka     | Kafka broker for data streaming             | -                         |
+| zookeeper | Zookeeper for Kafka                         | -                         |
+| kafdrop   | Kafka web-based monitoring                  | [localhost:9000](http://localhost:9000) |
 
 **Dashboards:**
 - Dask dashboard: [http://localhost:8787](http://localhost:8787)
@@ -138,19 +130,23 @@ docker-compose down
 
 ```
 Project/
- ├─ data/                   # Raw CSVs (or generated)
- ├─ data_generator/         # Scripts to fabricate synthetic traces
- ├─ kafka/                  # Docker-compose and streaming stub
+ ├─ docker-compose.yaml
+ ├─ dockerfile
+ ├─ full_pipeline.py        # Optional all-in-one run
+ ├─ main.py                 # Main pipeline entry
+ ├─ dataset_creation/       # Dataset creation scripts + scenarios
+ ├─ ground_truth_labeling/  # Ground truth labeling scripts + scenarios
  ├─ modules/                # All pipeline code (see below)
+ ├─ outputs/                # Saved models, predictions, plots, logs
+ ├─ tests/
  ├─ requirements.txt
- ├─ README.md
- └─ entrypoint.py           # Sets multiprocessing and runs pipeline
+ └─ README.md
 ```
 **Key modules:**  
 - `config.py` — central constants, budgets
 - `system_guard.py` — Dask client + logging
 - `data_processor.py` — data cleaning, encoding
-- `outliers_methods.py`, `outlier_processor.py` — outlier detection (HBOS, iForest, etc.)
+- `outlier_methods.py`, `outlier_processor.py` — outlier detection (HBOS, iForest, etc.)
 - `misbehaving_data_splitter.py` — train/test split, classifier
 - `final_reputation_predictor.py` — TPOT & FLAML regressors
 - `visualizer.py` — plot dashboards
@@ -214,9 +210,7 @@ Streams predictions to Kafka topic `reputation`.
 
 ## Results & Outputs
 
-- All fitted models are versioned/saved (`exported_tpot_models/`).  
-Μετά την ολοκλήρωση της εκτέλεσης, όλα τα αποτελέσματα, τα εκπαιδευμένα μοντέλα και τα διαγράμματα αποθηκεύονται στο φάκελο `outputs/`, ενώ οι διαδραστικές απεικονίσεις βρίσκονται στο `figures/`.
-
+- All fitted models are versioned and saved under `outputs/`.
 - All prediction results are available as CSV.
 - Interactive visualizations help compare model quality and analyze reputation prediction accuracy.
 
@@ -247,7 +241,7 @@ This project is open-source. See [LICENSE](LICENSE) for details.
 
 ## Contact
 
-Created by Spiros Karagilanis (contact: [GitHub](https://github.com/BlackPhoenixr) ή μέσω email κατόπιν αιτήματος).  
+Created by Spiros Karagilanis (contact: [GitHub](https://github.com/BlackPhoenixr) or by email upon request).  
 Questions or suggestions? Open an issue or contact via [GitHub](#).
 
 ---
