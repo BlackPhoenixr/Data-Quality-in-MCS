@@ -1,128 +1,44 @@
-# SecureML Pipeline
+# User‑Reputation‑Prediction Thesis Project
 
 [![Python](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](#)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#)
-[![Status](https://img.shields.io/badge/status-work%20in%20progress-orange)](#)
+<!-- Add real links as appropriate -->
 
-> DevSecOps learning project: ML anomaly-detection pipeline with automated security gates
+> **Academic Thesis: Predicting User Reputation from Behaviour Logs with AutoML and Parallelism**
 
 ---
 
-## Overview
+## About
 
-**SecureML Pipeline** is a portfolio project demonstrating DevSecOps best practices applied to a production-grade machine learning system. It takes an existing ML anomaly-detection pipeline (Kafka + AutoML + PyOD) and wraps it in automated security gates across three layers: CI/CD pipeline hardening, ML-specific security (MLSecOps), and secure coding practices.
+This project presents an end-to-end machine learning pipeline for predicting user reputation from raw behaviour logs. It combines advanced AutoML techniques with scalable parallel processing to automate feature engineering, model selection, and result validation.  
+**Main technologies:** TPOT, FLAML, Dask, Scikit-learn, PyOD.
 
-The project is designed for **security-conscious engineers, DevSecOps practitioners, and ML platform teams** looking to understand how to integrate security validation into ML workflows at scale.
+**Key features:**
+- **Automatic pipeline optimization** with TPOT (genetic search) & FLAML (cost-efficient tuning)
+- **Parallelized data processing** with Dask for efficient execution on large datasets
+- **Outlier removal** and **misbehaviour detection** to improve data quality
+- **Fully reproducible**: every model and pipeline is saved for auditing and further research
+- Optional **Kafka streaming** for real-time scoring (demo-ready stub)
 
 ---
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Background](#background)
-- [Architecture](#architecture)
-- [Security Goals](#security-goals)
-- [Roadmap](#roadmap)
-- [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
-- [Status](#status)
+- [Configurable Parameters](#configurable-parameters)
+- [Pipeline Overview](#pipeline-overview)
+- [Dask Parallelism](#dask-parallelism)
+- [Kafka Streaming (Optional)](#kafka-streaming-optional)
+- [Results & Outputs](#results--outputs)
+- [Citation](#citation)
+- [Contributing](#contributing)
+- [License](#license)
 - [Contact](#contact)
 
 ---
 
-## Background
-
-This project originated as an **MSc thesis** on predicting user reputation from behaviour logs using advanced AutoML techniques. The core pipeline combines:
-
-- **TPOT** (Tree-based Pipeline Optimization Tool) for genetic-algorithm-driven pipeline search
-- **FLAML** (Fast Library for AutoML) for cost-efficient hyperparameter tuning
-- **PyOD** for anomaly detection and outlier removal
-- **Kafka** for optional real-time streaming and scoring
-- **Dask** for parallelized data processing
-
-The thesis demonstrated how to automate feature engineering, model selection, and validation on large-scale behaviour datasets. For details on the original research, see `Thesis.pdf` in this repository.
-
-**Key ML components:**
-- Automatic pipeline optimization with TPOT & FLAML
-- Parallelized data processing with Dask
-- Outlier detection and misbehaviour classification
-- Full reproducibility (all models and pipelines versioned)
-
----
-
-## Architecture
-
-```
-┌─────────────┐      ┌──────────┐      ┌─────────────────────┐      ┌─────────────┐
-│  Producer   │ ──→  │  Kafka   │  ──→ │  ML Consumer        │  ──→ │  Results    │
-│  (Events)   │      │  Broker  │      │ (TPOT/PyOD/AutoML)  │      │  (Anomalies)│
-└─────────────┘      └──────────┘      └─────────────────────┘      └─────────────┘
-                            ▲                       ▲                       ▲
-                            │                       │                       │
-                     ┌──────────────────────────────────────────────────────┐
-                     │        GitHub Actions Security Gates                 │
-                     │  • Secrets scanning (gitleaks)                       │
-                     │  • SAST (bandit, semgrep)                           │
-                     │  • Dependency scanning (pip-audit)                   │
-                     │  • Linting & code quality                            │
-                     │  • Container scanning (trivy)                        │
-                     │  • Data validation gates (pandera)                   │
-                     └──────────────────────────────────────────────────────┘
-```
-
-The pipeline is wrapped by three layers of automated security validation that ensure code, dependencies, and model inputs meet security standards before deployment.
-
----
-
-## Security Goals
-
-Our DevSecOps approach is organized into three complementary security layers:
-
-| Layer | Focus | Controls |
-|-------|-------|----------|
-| **Layer 1: CI/CD Pipeline** | Secure the deployment infrastructure | GitHub Actions gates: secrets scanning (gitleaks), SAST analysis, dependency vulnerability scanning, linting, container image scanning (trivy) |
-| **Layer 2: ML Process** | MLSecOps—secure data and models | Data validation (pandera schemas), adversarial input testing, model artifact integrity checks, automated retraining gates |
-| **Layer 3: Code Security** | Secure development practices | SAST with bandit & semgrep, secure coding standards enforcement, pre-commit hooks, dependency pinning |
-
----
-
-## Roadmap
-
-Development is organized into five phases:
-
-- [ ] **Phase 1: Devcontainer & Repo Hygiene**  
-      Set up reproducible development environment; add gitleaks and pre-commit hooks to prevent credential leaks
-
-- [ ] **Phase 2: SAST & Dependency Scanning**  
-      Integrate bandit & semgrep for code security; add pip-audit for dependency vulnerabilities in GitHub Actions
-
-- [ ] **Phase 3: Container Hardening**  
-      Apply hadolint for Dockerfile linting; integrate trivy for container image scanning
-
-- [ ] **Phase 4: Data & Model Validation**  
-      Implement pandera for input data validation; add adversarial input tests; verify model artifact integrity
-
-- [ ] **Phase 5: Documentation & SonarQube Integration**  
-      Complete security documentation; integrate SonarQube/SonarCloud; publish security write-up and architecture guide
-
----
-
-## Tech Stack
-
-| Component | Technology |
-|-----------|-----------|
-| **Language** | Python 3.10+ |
-| **Data Pipeline** | Kafka, Dask, PyOD |
-| **ML/AutoML** | TPOT, FLAML, Scikit-learn |
-| **CI/CD** | GitHub Actions |
-| **Security Scanning** | gitleaks, bandit, semgrep, trivy, pip-audit |
-| **Data Validation** | Pandera |
-| **Containerization** | Docker, Dockerfile linting (hadolint) |
-| **Development** | Devcontainer, pre-commit |
-
----
 
 ## Quick Start
 
@@ -301,20 +217,11 @@ Streams predictions to Kafka topic `reputation`.
 
 ---
 
-## Status
+## Citation
 
-🚧 **Work in Progress** — The project is transitioning from an MSc thesis demonstration to a production-focused DevSecOps portfolio project. Security gates are being implemented incrementally across all three layers.
-
-Current focus: Foundation setup (Phases 1–2)
-
----
-
-## Citation (Original Thesis)
-
-If this project's ML components contribute to your research, please cite:
-
-> Olson et al. "TPOT: A Tree‑based Pipeline Optimization Tool for AutoML." *Bioinformatics* 2020.  
-> Zheng et al. "FLAML: A Fast Library for AutoML & Hyperparameter Tuning." *MLSys* 2022.
+If this project contributes to your research, please cite:
+> Olson et al. “TPOT: A Tree‑based Pipeline Optimization Tool for AutoML.” *Bioinformatics* 2020.  
+> Zheng et al. “FLAML: A Fast Library for AutoML & Hyperparameter Tuning.” *MLSys* 2022.
 
 ---
 
@@ -327,14 +234,16 @@ Please open an issue or submit a pull request.
 
 ## License
 
-This project is open-source. See [LICENSE](LICENSE) for details.
+This project is open-source. See [LICENSE](LICENSE) for details.  
+<!-- Change or remove if you use a different license -->
 
 ---
 
 ## Contact
 
-Created by Spiros Karagilanis | [GitHub](https://github.com/BlackPhoenixr) | Questions? Open an issue.
+Created by Spiros Karagilanis (contact: [GitHub](https://github.com/BlackPhoenixr) or by email upon request).  
+Questions or suggestions? Open an issue or contact via [GitHub](#).
 
 ---
 
-✨ **Secure ML at scale—one gate at a time.** 🔒
+✨ **Happy researching—and may your reputations always converge!** 🎓
